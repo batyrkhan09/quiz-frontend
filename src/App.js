@@ -19,7 +19,8 @@ export default function QuizApp() {
 
   useEffect(() => {
     axios.get(`${API_BASE}/category/`).then((res) => setCategories(res.data));
-  }, [API_BASE]);
+  }, []); // ← ✅ Пустой массив
+  
 
   const startQuiz = (id) => {
     setSelectedCategory(id);
