@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./styles.css";
 
+const API_BASE = import.meta.env.VITE_API_URL;
+
 function Wrapper({ children }) {
   return <div className="app-wrapper">{children}</div>;
 }
@@ -16,8 +18,8 @@ export default function QuizApp() {
   const [quizSubmitted, setQuizSubmitted] = useState(false);
 
   useEffect(() => {
-    axios.get("http://localhost:8000/category/").then((res) => setCategories(res.data));
-  }, []);
+    axios.get(`${API_BASE}/category/`).then((res) => setCategories(res.data));
+  }, [API_BASE]);
 
   const startQuiz = (id) => {
     setSelectedCategory(id);
@@ -25,7 +27,7 @@ export default function QuizApp() {
     setScore(0);
     setQuizSubmitted(false);
     setCurrentIndex(0);
-    axios.get(`http://localhost:8000/quiz/${id}`).then((res) => setQuestions(res.data));
+    axios.get(`${API_BASE}/quiz/${id}`).then((res) => setQuestions(res.data));
   };
 
   const handleAnswer = (qId, opt) => {
@@ -60,14 +62,13 @@ export default function QuizApp() {
     setQuizSubmitted(false);
   };
 
-  // старт
   if (!selectedCategory) {
     return (
       <Wrapper>
         <div className="glass-card hero-card">
-          <h1 className="hero-title">🎯 Manul Quiz</h1>
+          <h1 className="hero-title">🎯 Quiz Galaxy</h1>
           <p className="hero-sub">
-            Выберите категорию
+            Выберите категорию и отправляйтесь в космическое путешествие знаний
           </p>
           <div className="categories-container">
             {categories.map((cat) => (
@@ -85,17 +86,13 @@ export default function QuizApp() {
     );
   }
 
-  // результаты
   if (quizSubmitted) {
     return (
       <Wrapper>
         <div className="glass-card result-screen">
-          <h1 className="main-title">📈 Ваш результат</h1>
+          <h1 className="main-title">📊 Ваш результат</h1>
           <p className="score-text">
-            Вы набрали{" "}
-            <span className="score-highlight">
-              {score}/{questions.length}
-            </span>
+            Вы набрали <span className="score-highlight">{score}/{questions.length}</span>
           </p>
           <div className="results-list">
             {questions.map((q, i) => {
@@ -104,10 +101,7 @@ export default function QuizApp() {
                 <div key={i} className="glass-card question-result">
                   <h3 className="q-text">{q.text}</h3>
                   {q.options.map((opt, idx) => {
-                    const isCorrect =
-                      typeof opt === "string" &&
-                      typeof q.correct_option === "string" &&
-                      opt.trim() === q.correct_option.trim();
+                    const isCorrect = opt.trim() === q.correct_option.trim();
                     const isWrong = ua === opt && !isCorrect;
                     const cls = isCorrect
                       ? "res-opt correct"
@@ -133,7 +127,6 @@ export default function QuizApp() {
     );
   }
 
-  // загрузка
   if (questions.length === 0 || !questions[currentIndex]) {
     return (
       <Wrapper>
@@ -144,7 +137,6 @@ export default function QuizApp() {
     );
   }
 
-  // квиз
   const q = questions[currentIndex];
   const progress = ((currentIndex + 1) / questions.length) * 100;
 
